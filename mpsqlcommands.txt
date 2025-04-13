@@ -1,0 +1,104 @@
+-- Create Database
+CREATE DATABASE GymDB;
+USE GymDB;
+
+-- Members Table
+CREATE TABLE Members (
+    member_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT,
+    gender VARCHAR(10),
+    membership_type VARCHAR(50),
+    join_date DATE
+);
+
+-- Equipment Table
+CREATE TABLE Equipment (
+    equipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    quantity INT,
+    maintenance_date DATE
+);
+
+-- Trainers Table
+CREATE TABLE Trainers (
+    trainer_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    specialization VARCHAR(100),
+    experience INT
+);
+
+-- Facilities Table
+CREATE TABLE Facilities (
+    facility_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT
+);
+
+-- Trigger: Log new member join
+CREATE TABLE MemberLog (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_name VARCHAR(100),
+    join_time DATETIME
+);
+
+DELIMITER //
+CREATE TRIGGER after_member_insert
+AFTER INSERT ON Members
+FOR EACH ROW
+BEGIN
+    INSERT INTO MemberLog(member_name, join_time)
+    VALUES (NEW.name, NOW());
+END;
+//
+DELIMITER ;
+
+-- Procedure: Get total equipment
+DELIMITER //
+CREATE PROCEDURE TotalEquipment(OUT total INT)
+BEGIN
+    SELECT SUM(quantity) INTO total FROM Equipment;
+END;
+//
+DELIMITER ;
+
+-- Function: Get experience level
+DELIMITER //
+CREATE FUNCTION ExperienceLevel(exp INT)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+    RETURN (
+        CASE 
+            WHEN exp >= 10 THEN 'Expert'
+            WHEN exp >= 5 THEN 'Intermediate'
+            ELSE 'Beginner'
+        END
+    );
+END;
+//
+DELIMITER ;
+
+-- Cursor Example: Print all trainer names (Run manually)
+DELIMITER //
+CREATE PROCEDURE ShowTrainers()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE tname VARCHAR(100);
+    DECLARE cur CURSOR FOR SELECT name FROM Trainers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO tname;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        SELECT tname AS TrainerName;
+    END LOOP;
+
+    CLOSE cur;
+END;
+//
+DELIMITER ;
