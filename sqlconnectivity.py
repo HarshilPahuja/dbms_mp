@@ -7,7 +7,7 @@ from datetime import date
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Welcome2006#",
+    password="urpassword",
     database="GymDB"
 )
 cursor = conn.cursor()
