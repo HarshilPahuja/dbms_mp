@@ -3,15 +3,6 @@ from tkinter import messagebox
 import mysql.connector
 from datetime import date
 
-#make trainer display better
-#if an already existing m_id exists it should display id already exists on putting that
-#fix show count
-
-#facilties and memberlog not in use yet
-#Function: Get experience level not used
-#for deletion just write memberid, for updating need to fill all columns
-
-
 # Database connection
 conn = mysql.connector.connect(
     host="localhost",
@@ -36,10 +27,13 @@ def add_member():
     if member_id and name and age and gender and membership:
         query = "INSERT INTO Members (member_id, name, age, gender, membership_type, join_date) VALUES (%s, %s, %s, %s, %s, %s)"
         values = (int(member_id), name, int(age), gender, membership, date.today())
-        cursor.execute(query, values)
-        conn.commit()
-        messagebox.showinfo("Success", "Member Added Successfully!")
-        clear_member_entries()
+        try:
+            cursor.execute(query, values)
+            conn.commit()
+            messagebox.showinfo("Success", "Member Added Successfully!")
+            clear_member_entries()
+        except mysql.connector.errors.IntegrityError:
+            messagebox.showerror("Error", "Member ID already exists.")
     else:
         messagebox.showwarning("Input Error", "Please fill all fields.")
 
@@ -102,19 +96,13 @@ def add_trainer():
         messagebox.showwarning("Input Error", "Fill all trainer fields.")
 
 def show_equipment():
-    # Call the stored procedure
-    cursor.callproc("TotalEquipment", [0])  # Pass 0 as a placeholder for the OUT parameter
-
-    # Retrieve the OUT parameter
-    cursor.execute("SELECT @TotalEquipment_total AS total")  # Get the session variable
+    cursor.callproc("TotalEquipment", [0])
+    cursor.execute("SELECT @TotalEquipment_total AS total")
     total = cursor.fetchone()[0]
-
-    # Display the result
     if total is not None:
         messagebox.showinfo("Total Equipment", f"Total quantity of equipment in the gym: {total}")
     else:
         messagebox.showinfo("Total Equipment", "No equipment found.")
-
 
 def show_trainers():
     cursor.callproc("ShowTrainers")
@@ -123,6 +111,16 @@ def show_trainers():
         for row in result.fetchall():
             trainers.append(row[0])
     messagebox.showinfo("Trainers", "\n".join(trainers))
+
+def show_experience_levels():
+    query = "SELECT name, experience, ExperienceLevel(experience) AS level FROM Trainers"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    if rows:
+        info = "\n".join([f"{name} - {exp} yrs - {level}" for name, exp, level in rows])
+        messagebox.showinfo("Trainer Experience Levels", info)
+    else:
+        messagebox.showinfo("Trainer Experience Levels", "No trainers found.")
 
 def clear_member_entries():
     entry_member_id.delete(0, tk.END)
@@ -158,8 +156,6 @@ def launch_main_app():
         entries.append(entry)
 
     entry_member_id, entry_name, entry_age, entry_gender, entry_membership = entries
-   
-
 
     tk.Button(member_frame, text="Add", command=add_member, bg="#4caf50", fg="white", width=12).grid(row=5, column=0, pady=5)
     tk.Button(member_frame, text="Update", command=update_member, bg="#ff9800", fg="white", width=12).grid(row=5, column=1, pady=5)
@@ -200,6 +196,7 @@ def launch_main_app():
 
     tk.Button(trainer_frame, text="Add Trainer", command=add_trainer, bg="#8e24aa", fg="white", width=20).grid(row=3, column=0, columnspan=2, pady=5)
     tk.Button(trainer_frame, text="List All Trainers", command=show_trainers, bg="#c62828", fg="white", width=20).grid(row=4, column=0, columnspan=2)
+    tk.Button(trainer_frame, text="Trainer Experience Levels", command=show_experience_levels, bg="#6a1b9a", fg="white", width=20).grid(row=5, column=0, columnspan=2, pady=5)
 
     app.mainloop()
 
