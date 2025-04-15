@@ -7,7 +7,7 @@ from datetime import date
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Welcome2006#",  # Replace with your MySQL password
+    password="Welcome2006#",
     database="GymDB"
 )
 cursor = conn.cursor()
@@ -25,7 +25,6 @@ def add_member():
     membership = entry_membership.get()
 
     if member_id and name and age and gender and membership:
-        # Check if member_id already exists
         cursor.execute("SELECT * FROM Members WHERE member_id = %s", (int(member_id),))
         if cursor.fetchone():
             messagebox.showerror("Error", f"Member ID {member_id} already exists.")
@@ -67,7 +66,6 @@ def delete_member():
         messagebox.showwarning("Input Error", "Please enter Member ID to delete.")
         return
 
-    # Check if member_id exists
     cursor.execute("SELECT * FROM Members WHERE member_id = %s", (int(member_id),))
     if not cursor.fetchone():
         messagebox.showerror("Error", f"Member ID {member_id} does not exist.")
@@ -135,6 +133,29 @@ def show_experience_levels():
     else:
         messagebox.showinfo("Trainer Experience Levels", "No trainers found.")
 
+def show_dashboard():
+    cursor.execute("SELECT COUNT(*) FROM Members")
+    total_members = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM Trainers")
+    total_trainers = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM Equipment")
+    total_equipment_types = cursor.fetchone()[0]
+
+    today = date.today()
+    cursor.execute("SELECT COUNT(*) FROM Members WHERE MONTH(join_date) = %s AND YEAR(join_date) = %s", (today.month, today.year))
+    joined_this_month = cursor.fetchone()[0]
+
+    dashboard_msg = (
+        f"📊 Dashboard Overview:\n\n"
+        f"Total Members: {total_members}\n"
+        f"Total Trainers: {total_trainers}\n"
+        f"Equipment Types: {total_equipment_types}\n"
+        f"Members Joined This Month: {joined_this_month}"
+    )
+    messagebox.showinfo("Dashboard", dashboard_msg)
+
 def clear_member_entries():
     entry_member_id.delete(0, tk.END)
     entry_name.delete(0, tk.END)
@@ -145,11 +166,14 @@ def clear_member_entries():
 def launch_main_app():
     app = tk.Tk()
     app.title("Gym Management System")
-    app.geometry("1000x650")
+    app.geometry("1050x650")
     app.configure(bg="#e0f7fa")
 
-    title = tk.Label(app, text="🏋️‍♂️ Gym Management System 🏋️‍♀️", font=("Arial", 24, "bold"), bg="#006064", fg="white")
+    title = tk.Label(app, text="\U0001F3CB\ufe0f Gym Management System \U0001F3CB\ufe0f", font=("Arial", 24, "bold"), bg="#006064", fg="white")
     title.pack(fill=tk.X, pady=10)
+
+    dashboard_btn = tk.Button(app, text="View Dashboard", command=show_dashboard, bg="#00796b", fg="white", font=("Arial", 12), width=20)
+    dashboard_btn.pack(pady=5)
 
     frame = tk.Frame(app, bg="#e0f7fa")
     frame.pack(pady=10)
@@ -213,7 +237,6 @@ def launch_main_app():
 
     app.mainloop()
 
-# LOGIN SCREEN
 def login_window():
     login = tk.Tk()
     login.title("Admin Login")
