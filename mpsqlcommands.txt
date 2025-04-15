@@ -102,3 +102,15 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+mysql> ALTER TABLE Members MODIFY member_id INT;
+Query OK, 2 rows affected (0.07 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE Members DROP PRIMARY KEY;
+Query OK, 2 rows affected (0.07 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE Members ADD PRIMARY KEY (member_id);
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
