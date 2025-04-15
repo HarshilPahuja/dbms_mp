@@ -18,14 +18,15 @@ ADMIN_PASSWORD = "1234"
 
 # Functions
 def add_member():
+    member_id = entry_member_id.get()
     name = entry_name.get()
     age = entry_age.get()
     gender = entry_gender.get()
     membership = entry_membership.get()
 
-    if name and age and gender and membership:
-        query = "INSERT INTO Members (name, age, gender, membership_type, join_date) VALUES (%s, %s, %s, %s, %s)"
-        values = (name, int(age), gender, membership, date.today())
+    if member_id and name and age and gender and membership:
+        query = "INSERT INTO Members (member_id, name, age, gender, membership_type, join_date) VALUES (%s, %s, %s, %s, %s, %s)"
+        values = (int(member_id), name, int(age), gender, membership, date.today())
         cursor.execute(query, values)
         conn.commit()
         messagebox.showinfo("Success", "Member Added Successfully!")
@@ -148,6 +149,8 @@ def launch_main_app():
         entries.append(entry)
 
     entry_member_id, entry_name, entry_age, entry_gender, entry_membership = entries
+   
+
 
     tk.Button(member_frame, text="Add", command=add_member, bg="#4caf50", fg="white", width=12).grid(row=5, column=0, pady=5)
     tk.Button(member_frame, text="Update", command=update_member, bg="#ff9800", fg="white", width=12).grid(row=5, column=1, pady=5)
