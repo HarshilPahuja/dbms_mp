@@ -25,6 +25,12 @@ def add_member():
     membership = entry_membership.get()
 
     if member_id and name and age and gender and membership:
+        # Check if member_id already exists
+        cursor.execute("SELECT * FROM Members WHERE member_id = %s", (int(member_id),))
+        if cursor.fetchone():
+            messagebox.showerror("Error", f"Member ID {member_id} already exists.")
+            return
+
         query = "INSERT INTO Members (member_id, name, age, gender, membership_type, join_date) VALUES (%s, %s, %s, %s, %s, %s)"
         values = (int(member_id), name, int(age), gender, membership, date.today())
         try:
@@ -33,7 +39,7 @@ def add_member():
             messagebox.showinfo("Success", "Member Added Successfully!")
             clear_member_entries()
         except mysql.connector.errors.IntegrityError:
-            messagebox.showerror("Error", "Member ID already exists.")
+            messagebox.showerror("Error", "Integrity Error while adding member.")
     else:
         messagebox.showwarning("Input Error", "Please fill all fields.")
 
@@ -60,6 +66,13 @@ def delete_member():
     if not member_id:
         messagebox.showwarning("Input Error", "Please enter Member ID to delete.")
         return
+
+    # Check if member_id exists
+    cursor.execute("SELECT * FROM Members WHERE member_id = %s", (int(member_id),))
+    if not cursor.fetchone():
+        messagebox.showerror("Error", f"Member ID {member_id} does not exist.")
+        return
+
     cursor.execute("DELETE FROM Members WHERE member_id=%s", (int(member_id),))
     conn.commit()
     messagebox.showinfo("Success", "Member Deleted Successfully!")
