@@ -29,12 +29,7 @@ CREATE TABLE Trainers (
     experience INT
 );
 
--- Facilities Table
-CREATE TABLE Facilities (
-    facility_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    description TEXT
-);
+
 
 -- Trigger: Log new member join
 CREATE TABLE MemberLog (
