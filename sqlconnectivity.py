@@ -3,6 +3,15 @@ from tkinter import messagebox
 import mysql.connector
 from datetime import date
 
+#make trainer display better
+#if an already existing m_id exists it should display id already exists on putting that
+#fix show count
+
+#facilties and memberlog not in use yet
+#Function: Get experience level not used
+#for deletion just write memberid, for updating need to fill all columns
+
+
 # Database connection
 conn = mysql.connector.connect(
     host="localhost",
